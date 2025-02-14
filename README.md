@@ -30,7 +30,7 @@ php artisan ser
 ```shell
 {
 "username" : "Minprim",
-"password" : "123456789"
+"password" : "12345678"
 "role" : "admin"
 }
 ```
