@@ -33,7 +33,7 @@ class PostController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        DB::beginTransaction(); // Memulai transaksi
+        DB::beginTransaction();
 
         try {
             $user = Auth::user();
@@ -57,11 +57,11 @@ class PostController extends Controller
                 $post->tags()->sync($validated['tags']);
             }
 
-            DB::commit(); // Simpan transaksi
+            DB::commit(); 
 
             return $this->sendResponse($post->load(['tags', 'category']), 'Post created successfully', 201);
         } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan transaksi jika terjadi error
+            DB::rollBack(); 
 
             return $this->sendError('Failed to create post: ' . $e->getMessage(), 500);
         }
@@ -86,7 +86,7 @@ class PostController extends Controller
 
     public function update(Request $request, $id): JsonResponse
     {
-        DB::beginTransaction(); // Memulai transaksi
+        DB::beginTransaction(); 
 
         try {
             if (!($post = Posts::find($id))) {
@@ -114,11 +114,11 @@ class PostController extends Controller
                 $post->tags()->sync($validated['tags']);
             }
 
-            DB::commit(); // Simpan transaksi
+            DB::commit(); 
 
             return $this->sendResponse($post->load(['tags:id,name', 'category:id,name']), 'Post updated successfully');
         } catch (\Exception $e) {
-            DB::rollBack(); // Batalkan transaksi jika terjadi error
+            DB::rollBack(); 
 
             return $this->sendError('Failed to update post: ' . $e->getMessage(), 500);
         }
