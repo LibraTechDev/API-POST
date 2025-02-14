@@ -6,73 +6,86 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\traits\ApiResponse;
 
 class UserController extends Controller
 {
-    
-    private function respondWithJson($code, $message, $data = null)
-    {
-        return response()->json([
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-        ], $code);
-    }
+    use ApiResponse;
 
     public function index()
     {
-        return $this->respondWithJson(200, 'Daftar User Berhasil Diambil', User::all());
+        try {
+            $users = User::all();
+            return $this->sendResponse($users, 'Daftar User Berhasil Diambil');
+        } catch (\Exception $e) {
+            return $this->sendError('Gagal mengambil daftar user', 500, $e->getMessage());
+        }
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'username' => 'required|string|max:50|unique:users,username',
-            'name' => 'required|string|max:100',
-            'password' => 'required|string|min:8|max:60',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'username' => 'required|string|max:50|unique:users,username',
+                'name' => 'required|string|max:100',
+                'password' => 'required|string|min:8|max:60',
+            ]);
 
-        $validatedData['password'] = Hash::make($validatedData['password']);
+            $validatedData['password'] = Hash::make($validatedData['password']);
 
-        $user = User::create($validatedData);
+            $user = User::create($validatedData);
 
-        return $this->respondWithJson(201, 'User Berhasil Dibuat', $user);
+            return $this->sendResponse($user, 'User Berhasil Dibuat', 201);
+        } catch (\Exception $e) {
+            return $this->sendError('Gagal membuat user', 500, $e->getMessage());
+        }
     }
 
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return $this->respondWithJson(200, 'User Berhasil Diambil', $user);
+        try {
+            $user = User::findOrFail($id);
+            return $this->sendResponse($user, 'User Berhasil Diambil');
+        } catch (\Exception $e) {
+            return $this->sendError('User tidak ditemukan', 404, $e->getMessage());
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'username' => 'required|string|max:50|unique:users,username,' . $id,
-            'name' => 'required|string|max:100',
-            'password' => 'nullable|string|min:8|max:60',
-            'role' => 'nullable|string|in:admin,user',
-            
-        ]);
+            $validatedData = $request->validate([
+                'username' => 'required|string|max:50|unique:users,username,' . $id,
+                'name' => 'required|string|max:100',
+                'password' => 'nullable|string|min:8|max:60',
+                'role' => 'nullable|string|in:admin,user',
+            ]);
 
-        if (!empty($validatedData['password'])) {
-            $validatedData['password'] = Hash::make($validatedData['password']);
-        } else {
-            unset($validatedData['password']);
+            if (!empty($validatedData['password'])) {
+                $validatedData['password'] = Hash::make($validatedData['password']);
+            } else {
+                unset($validatedData['password']);
+            }
+
+            $user->update($validatedData);
+
+            return $this->sendResponse($user, 'User berhasil diperbarui');
+        } catch (\Exception $e) {
+            return $this->sendError('Gagal memperbarui user', 500, $e->getMessage());
         }
-
-        $user->update($validatedData);
-
-        return $this->respondWithJson(200, 'User updated successfully', $user);
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
 
-        return $this->respondWithJson(200, 'User Berhasil Dihapus');
+            return $this->sendResponse(null, 'User Berhasil Dihapus');
+        } catch (\Exception $e) {
+            return $this->sendError('Gagal menghapus user', 500, $e->getMessage());
+        }
     }
 }
