@@ -3,7 +3,7 @@
 
 - Masukkan Command Berikut 
 ```shell
-git clone https://github.com/LibraTechDev/API-LMS-SEDERHANA.git
+git clone https://github.com/LibraTechDev/API-POST.git
 ```
 - Ketikkan di Terminal
 ```shell
