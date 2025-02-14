@@ -31,6 +31,7 @@ php artisan ser
 {
 "username" : "Minprim",
 "password" : "123456789"
+"role" : "admin"
 }
 ```
 
